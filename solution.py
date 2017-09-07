@@ -8,6 +8,7 @@ def cross(a, b):
     # Cross product of elements in A and elements in B."
     return [s + t for s in a for t in b]
 
+
 # Additional constants
 BOXES = cross(ROWS, COLS)
 ROW_UNITS = [cross(r, COLS) for r in ROWS]
@@ -46,9 +47,28 @@ def naked_twins(values):
     Returns:
         the values dictionary with the naked twins eliminated from peers.
     """
+    # First select boxes with 2 entries
+    potential_twins = [box for box in values.keys() if len(values[box]) == 2]
+    # Collect boxes that have the same elements
+    naked_twins = [[box1, box2] for box1 in potential_twins
+                   for box2 in PEERS[box1]
+                   if set(values[box1]) == set(values[box2])]
 
-    # Find all instances of naked twins
-    # Eliminate the naked twins as possibilities for their peers
+    # For each pair of naked twins,
+    for i in range(len(naked_twins)):
+        box1 = naked_twins[i][0]
+        box2 = naked_twins[i][1]
+        # 1- compute intersection of peers
+        peers1 = set(PEERS[box1])
+        peers2 = set(PEERS[box2])
+        peers_int = peers1 & peers2
+        # 2- Delete the two digits in naked twins from all common peers.
+        for peer_val in peers_int:
+            if len(values[peer_val]) > 2:
+                for rm_val in values[box1]:
+                    values = assign_value(
+                        values, peer_val, values[peer_val].replace(rm_val, ''))
+    return values
 
 
 def grid_values(grid):
