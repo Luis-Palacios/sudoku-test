@@ -74,11 +74,12 @@ def naked_twins(values):
         # Get all peers from the naked twins
         peers1 = PEERS[twin1]
         peers2 = PEERS[twin2]
-        all_peers = peers1 & peers2
+        # The peers that exist in both twins
+        peers_to_check = peers1 & peers2
 
         # Delete the two digits in naked twins from all common peers.
-        for peer in all_peers:
-            if len(values[peer]) > 2:
+        for peer in peers_to_check:
+            if len(values[peer]) >= 2:
                 digits = values[twin1]
                 for digit in digits:
                     values = assign_value(
