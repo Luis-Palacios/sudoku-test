@@ -2,6 +2,8 @@
 # Initial constants needed
 ROWS = 'ABCDEFGHI'
 COLS = '123456789'
+# Used to create diagonal units 2
+REVERSED_COLS = COLS[::-1]
 
 
 def cross(a, b):
@@ -9,13 +11,18 @@ def cross(a, b):
     return [s + t for s in a for t in b]
 
 
-# Additional constants
+# Additional constants used for solution
 BOXES = cross(ROWS, COLS)
 ROW_UNITS = [cross(r, COLS) for r in ROWS]
 COLUMN_UNITS = [cross(ROWS, c) for c in COLS]
 SQUARE_UNITS = [cross(rs, cs) for rs in ('ABC', 'DEF', 'GHI')
                 for cs in ('123', '456', '789')]
-UNITLIST = ROW_UNITS + COLUMN_UNITS + SQUARE_UNITS
+# Form Diagonal Units
+DIAGONAL_UNITS = [[ROWS[i] + COLS[i] for i in range(9)]]
+DIAGONAL_UNITS_2 = [[ROWS[i] + REVERSED_COLS[i] for i in range(9)]]
+# The unit list include the diagonals
+UNITLIST = ROW_UNITS + COLUMN_UNITS + \
+    SQUARE_UNITS + DIAGONAL_UNITS + DIAGONAL_UNITS_2
 UNITS = dict((s, [u for u in UNITLIST if s in u]) for s in BOXES)
 PEERS = dict((s, set(sum(UNITS[s], [])) - set([s])) for s in BOXES)
 
@@ -50,7 +57,7 @@ def naked_twins(values):
     # First select boxes with 2 entries since they are possible twins
     possible_twins = [box for box in BOXES if len(values[box]) == 2]
 
-    # Collect boxes that have the same digits
+    # Store boxes that are naked twins
     naked_twins = []
     for box in possible_twins:
         for peer in PEERS[box]:
@@ -93,8 +100,8 @@ def grid_values(grid):
     grid_dict = {}
     # Iterate trough all boxes
     for index, box in enumerate(BOXES):
-        # If the value is not a . we assign the grid value
-        # to the dict if it is a . we replace it for 123456789
+        # If the value is not a '.' we assign the grid value
+        # to the dict if it is a '.' we replace it for 123456789
         value = grid[index] if grid[index] != '.' else '123456789'
         grid_dict[box] = value
     return grid_dict
