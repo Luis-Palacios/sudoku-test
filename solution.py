@@ -47,27 +47,35 @@ def naked_twins(values):
     Returns:
         the values dictionary with the naked twins eliminated from peers.
     """
-    # First select boxes with 2 entries
-    potential_twins = [box for box in values.keys() if len(values[box]) == 2]
-    # Collect boxes that have the same elements
-    naked_twins = [[box1, box2] for box1 in potential_twins
-                   for box2 in PEERS[box1]
-                   if set(values[box1]) == set(values[box2])]
+    # First select boxes with 2 entries since they are possible twins
+    possible_twins = [box for box in BOXES if len(values[box]) == 2]
+
+    # Collect boxes that have the same digits
+    naked_twins = []
+    for box in possible_twins:
+        for peer in PEERS[box]:
+            if values[box] == values[peer]:
+                naked_twins.append({
+                    'twin1': box,
+                    'twin2': peer
+                })
 
     # For each pair of naked twins,
-    for i in range(len(naked_twins)):
-        box1 = naked_twins[i][0]
-        box2 = naked_twins[i][1]
-        # 1- compute intersection of peers
-        peers1 = set(PEERS[box1])
-        peers2 = set(PEERS[box2])
-        peers_int = peers1 & peers2
-        # 2- Delete the two digits in naked twins from all common peers.
-        for peer_val in peers_int:
-            if len(values[peer_val]) > 2:
-                for rm_val in values[box1]:
+    for naked_twin in naked_twins:
+        twin1 = naked_twin['twin1']
+        twin2 = naked_twin['twin2']
+        # Get all peers from the naked twins
+        peers1 = PEERS[twin1]
+        peers2 = PEERS[twin2]
+        all_peers = peers1 & peers2
+
+        # Delete the two digits in naked twins from all common peers.
+        for peer in all_peers:
+            if len(values[peer]) > 2:
+                digits = values[twin1]
+                for digit in digits:
                     values = assign_value(
-                        values, peer_val, values[peer_val].replace(rm_val, ''))
+                        values, peer, values[peer].replace(digit, ''))
     return values
 
 
